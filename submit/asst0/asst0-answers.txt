@@ -1,0 +1,135 @@
+-------OUTPUT OF GIT COMMANDS---------
+
+1. jharvard@appliance (~/os161/root): sys161 kernel
+sys161: System/161 release 2.0.3, compiled Aug  5 2015 14:02:38
+
+OS/161 base system version 1.99.08
+Copyright (c) 2000, 2001-2005, 2008-2011, 2013, 2014
+   President and Fellows of Harvard College.  All rights reserved.
+
+Put-your-group-name-here's system version 0 (DUMBVM #1)
+
+292k physical memory available
+Device probe...
+lamebus0 (system main bus)
+emu0 at lamebus0
+ltrace0 at lamebus0
+ltimer0 at lamebus0
+beep0 at ltimer0
+rtclock0 at ltimer0
+lrandom0 at lamebus0
+random0 at lrandom0
+lhd0 at lamebus0
+lhd1 at lamebus0
+lser0 at lamebus0
+con0 at lser0
+
+cpu0: MIPS/161 (System/161 2.x) features 0x0
+OS/161 kernel [? for menu]:
+
+2. jharvard@appliance (~/os161/src): git log
+commit 39ee9d1e74fd80d4ee5a57fdab7e1bb96d36aa66
+Merge: 1c13ac0 72ed1b0
+Author: Fawaz Ahmed Saleem <fawazahmed@server.ca>
+Date:   Mon Sep 10 11:54:09 2018 -0400
+
+    Merge branch 'master' of https://bitbucket.org/iamfauz/os161
+
+commit 1c13ac043b0de98088e010955c4adf0264d32096
+Author: Fawaz Ahmed Saleem <fawazahmed@server.ca>
+Date:   Mon Sep 10 11:50:39 2018 -0400
+
+    Initial commit of os161 for CPEN331
+
+commit 72ed1b091e4501dbc526da4c702ca57fdfce7ab9
+Author: Fawaz Ahmed Saleem <iamfauz@yahoo.com>
+Date:   Mon Sep 10 14:57:24 2018 +0000
+
+    Initial commit
+    
+3. jharvard@appliance (~/os161/src): git tag
+asst0-start
+
+----------CODE READING EXERCISES-------------
+
+Q.1 When a trap occurs, the control is immediately transferred to mips_general_handler(line 86) or mips_utlb_handler(line 68) in ~src/kern/arch/mips/locore/exceptionS-mips.S
+    depending on the type of trap. 
+    From there the control is transferred to common_exception in ~src/kern/arch/mips/locore/exceptionS-mips.S and then to mips_trap in ~src/kern/arch/mips/locore/trap.c.
+    Interuppts are handled the same way up until inside mips_trap. There is something called  as an exception code that is passed through the trapframe argument which
+    determines whether the trap was caused by an interupt or a syscall. Depending on that code, the corresponding interrupt handler or the syscall handler is called.
+
+Q.2  The syscall invokes a trap from the userspace in ~/os161/src/build/userland/lib/libc/syscalls.S in line 85.
+
+Q.3  The "common" libc functions like strlen, strcpy are required to build the kernel , as a result they are present 
+     in the "common" part of the source tree (common/libc) as well as in userland/lib/libc
+
+Q.4  configure configures the OS/161 distribution and build system. Re-run the config script if you:
+     
+     - Change the kernel config.
+     - Add new source files to the build.
+     - Add new build options.
+   
+
+Q.5  Machine-dependent functions are low-level functions that are close to hardware and whose implementation depends 
+     on the specific architecture of the harware. This separation is neccessary as it promotes flexibilty and re-usabilty as in , the 
+     machine - independent code can simply be re-used by referencing machine-specific functions and constants.
+
+Q.6  Size of trapframe = 37 * uint32_t(32 bits) = 1184 bits = 148 bytes. The size accomadates the following registers:
+
+     - Coprosessor's vaddr, status, cause, and epc registers.
+     - MIPS's 2 special $lo and $hi registers
+     - Other 31 MIPS's registers
+
+Q.7  Rerun the kern/conf/config script when:
+   
+     - Changing assignments
+     - Configure builds.
+
+Q.8  Run bmake depend in kern/compile/DUMBVM when starting a new assignment because what the command essentially does is to load dependencies for the macros.
+
+Q.9  Run bmake or bmake install in kern/compile/DUMBVM if you want to recompile or install the kernel.
+
+Q.10  Steps to to add function/command that prints "Hello World" :
+
+    - Open kern/main/menu.c
+    - Add the command in cmdtable
+    - Write the corresponding function that prints "Hello World"
+    
+
+Q.11  os161 runs on sys161 (vm that simulates MIPS-like hardware) which runs on our virtual machine.
+      Therefore, it may not have access to the standard utilities present on the system that we're working on/
+
+Q.12  When a user program exits, the return value is stored in registers a0 and s0.
+
+
+Q.13    Steps/Places to modify to add new syscall:
+ 
+        - Add the new system call code in the ~/os161/src/kern/syscall directory.
+        
+        - Handle the system call number in ~/os161/kern/arch/mips/syscall/syscall.c in the switch statement that determines which syscall to execute.
+        
+        - Add a reference to the system call in ~/os161/kern/include/syscall.h
+        
+        - Add the call number in ~/os161/kern/include/kern/syscall.h.
+
+
+       In order to test the the new syscall we need to rebuild the kernel. This can be done by:
+       
+       - bmake
+       - bmake install
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

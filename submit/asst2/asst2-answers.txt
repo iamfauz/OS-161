@@ -1,0 +1,85 @@
+
+
+-------------------------------CODE READING EXERCISE-------------------------
+
+Q.1.  When thread_exit() is called:
+		- Virtual file system (VFS) for the thread is cleared. 
+		- Reference count to the thread's current working directory is decreased.
+		- Address space for the thread is cleared. 
+		- Stack guard band for the thread is checked.
+		- Thread is marked as zombie (S_ZOMBIE).
+		
+      When a thread sleeps, it's state is changed to S_SLEEP(Sleeping state) and then other threads gets to run on the CPU. 
+      The thread is made sleep on the specified wait channel WC until it's woken up.
+
+
+Q.2. thread_switch() performs the context-switch with the help of switchframe_switch().
+
+Q.3.  These are are the possible states a thread can have:
+
+      - Running (S_RUN): Running
+      - Ready (S_READY): The thread is runnable, but not currently running (might be a new thread or yielded by another thread)
+      - Sleeping (S_SLEEP): The thread is sleeping
+      - Zombie (S_ZOMBIE): Thead has exited but hasn't been destroyed.
+
+Q.4. - Interupts are what cause context-switches. Hence, context-switches cannot occur when interuppts are turned of.
+     
+     - They can be turned off by setting the SPL to high using splhigh().
+     
+     - When in a thread-subsystem we witness instances of race-conditions as a result of not protecting critical sections.
+       With the help of brute-force i.e turning interupts off, we can essentially protect critical sections as there won't be "bad-interleavings" since 
+       context-switches can't happen with interuppts turned off. Hence, in a thread-subsystem, we can ensure context-switches can complete properly
+       and threads properly exit.
+     
+Q.5.  In wchan_wakeone():
+      - a thread wakes up another thread by calling threadlist_remhead() to get the next thread on the waiting channel.
+      - the thread is then made ready/runnable by calling thread_make_runnable().
+      
+     This runnable thread is added to the CPU's run queue and waits for a context switch to occur so that it can run again on the CPU.
+
+
+Q.6. These functions choose the next thread to run:
+
+      - schedule()
+      - thread_switch()
+      - thread_consider_migration()
+
+
+Q.7.  The above functions do the following:
+
+      - thread_switch() simply picks the next thread on the CPU's run queue
+      - schedule() simply reshuffles the threads around on the run queue by job priority. 
+        By default, it uses a round-robin run queue that schedules each thread in the queue without any priorities and also having equal time-slicinng.
+   	  - thread_consider_migration() migrates threads across CPUs' run queues based how busy the CPUs are to maintain a balanced work-load amongst the CPUs.
+
+
+Q.8. In ~/os161/src/kern/thread/clock.c,  hardclock() is called by the interrupt handler for the hardware timer.
+    
+      Function of hardclock():
+      
+	  - It calls both schedule() and thread_consider_migration() periodically.
+	  - At the end , thread_yield() is called causing a context switch.
+
+
+Q.9.
+     - In the P() function of the semaphore :  wchan_sleep() is called to block/suspend the current thread until the semaphore count is greater than zero.
+       With blocking, we avoid busy-awaiting and this will save us from wasting cpu resources.
+        
+	 - In V() function of the semaphore: wchan_wakeone() wakes up the next sleeping thread in the waiting channel(wchan) for the current semaphore.
+	 
+	 
+	   Hence, with the help of these functions we synchronize sleeping and waiting calls and ensure that no thread sleeps forever.
+
+
+Q.10.  wchan_sleep(), wchan_wakeone() use spinlocks to ensure that a thread never misses a wake up signal.
+
+	 - The wchan_sleep() is called while the spinlock is held to ensure mutual exclusion
+	   Then, the thread is made to sleep by calling thread_switch() function. In the thread_switch you will
+	   also observe that the spinlock is released so other threads get to wake up the thread that has been to sleep.
+	 - Then, when the thread is woken up the spinlock is aquired again in wchan_sleep().
+	 -  wchan_wakeone() is also called when the spinlock is held.
+	 
+	 Inshort, with the help of spinlocks, we prevent bad-interleaving between when the thread is made to sleep and when the thread is woken up.
+ 
+
+
